@@ -30,22 +30,26 @@ export default function AllPerks() {
 
 */
 
-  
-  useEffect(() => {
-    // Extract all merchant names from perks array
-    const merchants = perks
-      .map(perk => perk.merchant) // Get merchant from each perk
-      .filter(merchant => merchant && merchant.trim()) // Remove empty/null values
-    
-    // Create array of unique merchants using Set
-    // Set automatically removes duplicates, then we convert back to array
-    const unique = [...new Set(merchants)]
-    
-    // Update state with unique merchants
-    setUniqueMerchants(unique)
-    
-    // This effect depends on [perks], so it re-runs whenever perks changes
-  }, [perks]) // Dependency: re-run when perks array changes
+  // 🔹 Update unique merchant list whenever perks change
+useEffect(() => {
+  const merchants = perks
+    .map(perk => perk.merchant)
+    .filter(merchant => merchant && merchant.trim());
+
+  const unique = [...new Set(merchants)];
+  setUniqueMerchants(unique);
+}, [perks]);
+
+// 🔹 Handle search changes
+useEffect(() => {
+  loadAllPerks(); // load according to current searchQuery (and filter if any)
+}, [searchQuery]);
+
+// 🔹 Handle filter changes
+useEffect(() => {
+  loadAllPerks(); // load according to current merchantFilter (and search if any)
+}, [merchantFilter]);
+
 
   
   async function loadAllPerks() {
@@ -136,6 +140,8 @@ export default function AllPerks() {
                 type="text"
                 className="input"
                 placeholder="Enter perk name..."
+                 value={searchQuery} // ✅ controlled input
+              onChange={(e) => setSearchQuery(e.target.value)}
                 
               />
               <p className="text-xs text-zinc-500 mt-1">
@@ -151,7 +157,8 @@ export default function AllPerks() {
               </label>
               <select
                 className="input"
-                
+                value={merchantFilter} // ✅ controlled select
+              onChange={(e) => setMerchantFilter(e.target.value)}
               >
                 <option value="">All Merchants</option>
                 
